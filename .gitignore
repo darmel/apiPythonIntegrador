@@ -1,0 +1,10 @@
+# created by virtualenv automatically
+
+pytest_cache/*
+.vscode/*
+__pycache__/*
+bin/*
+lib/*
+modelos/__pycache__/*
+test/__pycache__/*
+apis/__pycache__/*
