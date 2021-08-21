@@ -1,5 +1,7 @@
 from pprint import pprint
 from assertpy import assert_that
+from pkg_resources import require
+from requests.models import Response
 #from assertpy.assertpy import assert_that
 from apis.people_api import PeopleApi
 from config import BASE_URL
@@ -7,6 +9,8 @@ from uuid import uuid4
 import json
 import random
 from modelos.persona import Persona
+from cerberus import Validator, validator
+
 
 class TestPeopleApi:
     def setup_class(self):
@@ -94,6 +98,20 @@ class TestPeopleApi:
         assert_that(response.json().get('fname')).is_equal_to('TAU1')
         assert_that(response.json().get('lname')).is_equal_to(f'{unique_lname}')
 
+    def test_verify_persona(self):
+        schema = json.load('./resources/data/persona_schema.json', 'r')
+        response = self.api_people.get_person(1)
+        validator = Validator(schema, require_all=True)
+        is_valid = validator.validate(response.json())
+        assert_that(is_valid, description=validator.errors).is_true()
+
+    def test_verify_error(self):
+        schema = json.load('./resources/data/error_schema.json', 'r')
+        delete_id = (str(random.random())).replace('.','').lstrip("0") #replace para sacar el . y lstrip para sacar los 0 a la izquierda
+        response = self.api_people.delete_person_by_id(delete_id)
+        validator = Validator(schema, require_all=True)
+        is_valid = validator.validate(response.json())
+        assert_that(is_valid, description=validator.errors).is_true()
 
 
 
